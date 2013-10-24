@@ -53,11 +53,15 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		switch (algorithm) {
 		case ASTAR:
 			// ...
-			plan = naivePlan(vehicle, tasks);
+			System.out.println("A*");
+			plan = bfsPlan(vehicle, tasks);
+			System.out.println("The plan's cost is:" + plan.totalDistance()*vehicle.costPerKm());
 			break;
 		case BFS:
 			// ...
-			plan = naivePlan(vehicle, tasks);
+			System.out.println("BFS");
+			plan = bfsPlan(vehicle, tasks);
+			System.out.println("The plan's cost is:" + plan.totalDistance()*vehicle.costPerKm());
 			break;
 		default:
 			throw new AssertionError("Should not happen.");
@@ -65,37 +69,16 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		return plan;
 	}
 	
-	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
-		City current = vehicle.getCurrentCity();
-		Plan plan = new Plan(current);
-
-		for (Task task : tasks) {
-			// move: current city => pickup location
-			for (City city : current.pathTo(task.pickupCity))
-				plan.appendMove(city);
-
-			plan.appendPickup(task);
-
-			// move: pickup location => delivery location
-			for (City city : task.path())
-				plan.appendMove(city);
-
-			plan.appendDelivery(task);
-
-			// set current city
-			current = task.deliveryCity;
-		}
-		return plan;
-	}
 	
 	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
-		return null;
+		return Model.computeBFS(vehicle, tasks, TaskSet.create(new Task[0]));
 	}
 	
 	private Plan aStarPlan(Vehicle vehicle, TaskSet tasks) {
-		return null;
+		return Model.computeAStar(vehicle, tasks, TaskSet.create(new Task[0]));
 	}
 
+	//TODO what happens if plan is cancelled
 	@Override
 	public void planCancelled(TaskSet carriedTasks) {
 		

@@ -10,4 +10,16 @@
 		<set algorithm="BFS"/>
 	</agent>
 	
+	<agent name="deliberative-bfs">
+		<set class-path="bin/"/>
+		<set class-name="DeliberativeAgent"/>
+		<set algorithm="BFS"/>
+	</agent>
+	
+	<agent name="deliberative-a-star">
+		<set class-path="bin/"/>
+		<set class-name="DeliberativeAgent"/>
+		<set algorithm="ASTAR"/>
+	</agent>
+	
 </agents>
