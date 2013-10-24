@@ -87,6 +87,14 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		}
 		return plan;
 	}
+	
+	private Plan dfsPlan(Vehicle vehicle, TaskSet tasks) {
+		return null;
+	}
+	
+	private Plan aStarPlan(Vehicle vehicle, TaskSet tasks) {
+		return null;
+	}
 
 	@Override
 	public void planCancelled(TaskSet carriedTasks) {
