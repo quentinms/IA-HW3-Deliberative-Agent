@@ -88,7 +88,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		return plan;
 	}
 	
-	private Plan dfsPlan(Vehicle vehicle, TaskSet tasks) {
+	private Plan bfsPlan(Vehicle vehicle, TaskSet tasks) {
 		return null;
 	}
 	
