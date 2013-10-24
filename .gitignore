@@ -1,3 +1,5 @@
 bin/*
 *.pdf
 history.xml
+
+.classpath
