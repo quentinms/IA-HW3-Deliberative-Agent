@@ -237,23 +237,21 @@ class State {
 
 		}*/
 		
-		for(City c: currentCity.neighbors()){
+		for (City city: currentCity.neighbors()) {
 			
-			City newCurrentCity = c;
+			City newCurrentCity = city;
 
 			ArrayList<Task> newAvailableTasks = new ArrayList<Task>(availableTasks);
-			
 			ArrayList<Task> newCarriedTasks = new ArrayList<Task>(carriedTasks);
-			
 			ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
 
-			newActionList.add(new Move(c));
+			newActionList.add(new Move(city));
 			double newTotalCost = totalCost + currentCity.distanceTo(newCurrentCity) * vehicle.costPerKm();;
 			int newWeightCarried = weightCarried;
 			
 			ArrayList<Task> delivered = new ArrayList<Task>();
 			for(Task t: newCarriedTasks){
-				if(t.deliveryCity.equals(c)){
+				if(t.deliveryCity.equals(city)){
 					newActionList.add(new Delivery(t));
 					newWeightCarried = newWeightCarried - t.weight;
 					delivered.add(t);
@@ -265,11 +263,11 @@ class State {
 			//TODO Weight
 			
 			ArrayList<Task> pickedUp = new ArrayList<Task>();
-			for(Task t: newAvailableTasks){
-				if(t.pickupCity.equals(c)){
-					newActionList.add(new Pickup(t));
-					newWeightCarried = newWeightCarried + t.weight;
-					pickedUp.add(t);
+			for(Task task: newAvailableTasks){
+				if(task.pickupCity.equals(city)){
+					newActionList.add(new Pickup(task));
+					newWeightCarried = newWeightCarried + task.weight;
+					pickedUp.add(task);
 				}
 			}
 			
@@ -282,7 +280,6 @@ class State {
 					newTotalCost, newWeightCarried);
 			
 			nextStates.add(state);
-
 			
 		}
 
