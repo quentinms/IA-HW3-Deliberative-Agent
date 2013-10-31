@@ -248,7 +248,7 @@ class State {
 			ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
 
 			newActionList.add(new Move(c));
-			double newTotalCost = totalCost;
+			double newTotalCost = totalCost + currentCity.distanceTo(newCurrentCity) * vehicle.costPerKm();;
 			int newWeightCarried = weightCarried;
 			
 			ArrayList<Task> delivered = new ArrayList<Task>();
