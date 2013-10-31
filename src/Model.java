@@ -172,6 +172,8 @@ class State {
 		 */
 
 		/* We go pick up a task */
+		
+		/*
 		for (Task task : availableTasks) {
 
 			if (weightCarried + task.weight < this.vehicle.capacity()) {
@@ -204,9 +206,10 @@ class State {
 				
 			}
 			
-		}
+		}*/
 
 		/* We go deliver a task */
+		/*
 		for (Task task : carriedTasks) {
 
 			City newCurrentCity = task.deliveryCity;
@@ -232,6 +235,55 @@ class State {
 					newTotalCost, newWeightCarried);
 			nextStates.add(state);
 
+		}*/
+		
+		for(City c: currentCity.neighbors()){
+			
+			City newCurrentCity = c;
+
+			ArrayList<Task> newAvailableTasks = new ArrayList<Task>(availableTasks);
+			
+			ArrayList<Task> newCarriedTasks = new ArrayList<Task>(carriedTasks);
+			
+			ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
+
+			newActionList.add(new Move(c));
+			double newTotalCost = totalCost;
+			int newWeightCarried = weightCarried;
+			
+			ArrayList<Task> delivered = new ArrayList<Task>();
+			for(Task t: newCarriedTasks){
+				if(t.deliveryCity.equals(c)){
+					newActionList.add(new Delivery(t));
+					newWeightCarried = newWeightCarried - t.weight;
+					delivered.add(t);
+				}
+			}
+			
+			newCarriedTasks.removeAll(delivered);
+			
+			//TODO Weight
+			
+			ArrayList<Task> pickedUp = new ArrayList<Task>();
+			for(Task t: newAvailableTasks){
+				if(t.pickupCity.equals(c)){
+					newActionList.add(new Pickup(t));
+					newWeightCarried = newWeightCarried + t.weight;
+					pickedUp.add(t);
+				}
+			}
+			
+			newAvailableTasks.removeAll(pickedUp);
+			newCarriedTasks.addAll(pickedUp);
+
+	
+			State state = new State(newCurrentCity, newAvailableTasks,
+					newCarriedTasks, newActionList, this.vehicle,
+					newTotalCost, newWeightCarried);
+			
+			nextStates.add(state);
+
+			
 		}
 
 		return nextStates;
@@ -239,7 +291,7 @@ class State {
 }
 
 class StateComparator implements Comparator<State> {
-
+	//TODO Heuristic
 	@Override
 	public int compare(State s1, State s2) {
 
@@ -249,7 +301,21 @@ class StateComparator implements Comparator<State> {
 			return -1;
 		*/
 		
-		return (s1.totalCost > s2.totalCost) ? 1 : -1;
+		double futureCostS1 = 0;
+		City c1 = s1.currentCity;
+		for (Task t: s1.availableTasks){
+			
+		}
+		
+		double futureCostS2 = 0;
+		City c2 = s2.currentCity;
+		for (Task t: s2.availableTasks){
+			
+		}
+		
+		
+		
+		return (s1.totalCost + futureCostS1> s2.totalCost + futureCostS2) ? 1 : -1;
 	}
 
 }
