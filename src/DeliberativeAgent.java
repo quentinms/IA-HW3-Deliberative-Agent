@@ -6,14 +6,12 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
-import logist.topology.Topology.City;
 
 /* import table */
 
 /**
  * An optimal planner for one vehicle.
  */
-@SuppressWarnings("unused")
 public class DeliberativeAgent implements DeliberativeBehavior {
 
 	enum Algorithm { BFS, ASTAR }
@@ -39,13 +37,11 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		this.carriedTasks = TaskSet.create(new Task[0]);
 		
 		// Initialize the planner
-		int capacity = agent.vehicles().get(0).capacity();
+		// int capacity = agent.vehicles().get(0).capacity();
 		String algorithmName = agent.readProperty("algorithm", String.class, "ASTAR");
 		
 		// Throws IllegalArgumentException if algorithm is unknown
 		algorithm = Algorithm.valueOf(algorithmName.toUpperCase());
-		
-		// ...
 	}
 	
 	@Override
@@ -58,13 +54,13 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		case ASTAR:
 			System.out.println("Plan: A*");
 			plan = aStarPlan(vehicle, tasks, carriedTasks);
-			System.out.println("The plan's cost is:" + plan.totalDistance() * vehicle.costPerKm());
+			System.out.println("The plan's cost is: " + plan.totalDistance() * vehicle.costPerKm());
 			break;
 			
 		case BFS:
 			System.out.println("Plan: BFS");
 			plan = bfsPlan(vehicle, tasks, carriedTasks);
-			System.out.println("The plan's cost is:" + plan.totalDistance() * vehicle.costPerKm());
+			System.out.println("The plan's cost is: " + plan.totalDistance() * vehicle.costPerKm());
 			break;
 			
 		default:
@@ -83,7 +79,6 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		return Model.computeAStar(vehicle, tasks, carriedTasks);
 	}
 
-	//TODO what happens if plan is cancelled
 	@Override
 	public void planCancelled(TaskSet carriedTasks) {
 		
