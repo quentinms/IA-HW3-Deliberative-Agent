@@ -52,13 +52,11 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
 		case ASTAR:
-			// ...
 			System.out.println("A*");
 			plan = bfsPlan(vehicle, tasks);
 			System.out.println("The plan's cost is:" + plan.totalDistance()*vehicle.costPerKm());
 			break;
 		case BFS:
-			// ...
 			System.out.println("BFS");
 			plan = bfsPlan(vehicle, tasks);
 			System.out.println("The plan's cost is:" + plan.totalDistance()*vehicle.costPerKm());
