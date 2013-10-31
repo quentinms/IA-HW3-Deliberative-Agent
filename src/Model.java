@@ -25,7 +25,7 @@ public class Model {
 		ArrayList<State> C = new ArrayList<State>(); // States we have already visited, prevent cycles
 
 		City initialCity = vehicle.getCurrentCity();
-		State initialState = new State(initialCity, availableTasks, carriedTasks);
+		State initialState = new State(initialCity, availableTasks, carriedTasks, vehicle);
 
 		Q.add(initialState);
 
@@ -33,9 +33,10 @@ public class Model {
 		State finalState = null;
 
 		while (!foundFinalState) {
-			// System.out.println(Q.size());
+			
 			if (Q.isEmpty()) {
 				foundFinalState = true;
+				
 			} else {
 				State visitingState = Q.poll();
 
@@ -46,10 +47,7 @@ public class Model {
 
 				if (!C.contains(visitingState)) {
 					C.add(visitingState);
-
-					// TODO not sure if it adds it to the end of the queue.
-					// check offer()
-					Q.addAll(visitingState.next());
+					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
 			}
@@ -74,7 +72,7 @@ public class Model {
 		ArrayList<State> C = new ArrayList<State>(); // States we have already visited, prevent cycles
 
 		City initialCity = vehicle.getCurrentCity();
-		State initialState = new State(initialCity, availableTasks, carriedTasks);
+		State initialState = new State(initialCity, availableTasks, carriedTasks, vehicle);
 
 		Q.add(initialState);
 
@@ -82,9 +80,10 @@ public class Model {
 		State finalState = null;
 
 		while (!foundFinalState) {
-			// System.out.println(Q.size());
+			
 			if (Q.isEmpty()) {
 				foundFinalState = true;
+				
 			} else {
 				State visitingState = Q.poll();
 
@@ -95,9 +94,7 @@ public class Model {
 
 				if (!C.contains(visitingState)) {
 					C.add(visitingState);
-
-					// TODO check that the order after insertion is correct
-					Q.addAll(visitingState.next());
+					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
 			}
@@ -114,28 +111,31 @@ public class Model {
 }
 
 class State {
+	
 	City currentCity;
 	ArrayList<Task> availableTasks;
 	ArrayList<Task> carriedTasks;
 	ArrayList<Action> actionList;
+	Vehicle vehicle;
 	// Plan plan;
 
-	int totalCost;
+	double totalCost;
 	int weightCarried;
 
-	public State(City currentCity, ArrayList<Task> availableTasks, ArrayList<Task> carriedTasks) {
+	public State(City currentCity, ArrayList<Task> availableTasks, ArrayList<Task> carriedTasks, Vehicle vehicle) {
 		this.currentCity = currentCity;
 		this.availableTasks = new ArrayList<Task>(availableTasks);
 		this.carriedTasks = new ArrayList<Task>(carriedTasks);
 		this.actionList = new ArrayList<Action>();
+		this.vehicle = vehicle;
 
-		totalCost = 0;
+		totalCost = 0.;
 		weightCarried = 0;
 	}
 
 	public State(City currentCity, ArrayList<Task> availableTasks,
 			ArrayList<Task> pickedUpTasks, ArrayList<Action> actionList,
-			int totalCost, int weightCarried) {
+			Vehicle vehicle, double totalCost, int weightCarried) {
 
 		this.currentCity = currentCity;
 		// this.availableTasks = availableTasks;
@@ -144,6 +144,7 @@ class State {
 		this.carriedTasks = new ArrayList<Task>(pickedUpTasks);
 		// this.actionList = actionList;
 		this.actionList = new ArrayList<Action>(actionList);
+		this.vehicle = vehicle;
 
 		this.totalCost = totalCost;
 		this.weightCarried = weightCarried;
@@ -161,7 +162,7 @@ class State {
 	public boolean isFinal() {
 		return availableTasks.isEmpty() && carriedTasks.isEmpty();
 	}
-
+	
 	public ArrayList<State> next() {
 		ArrayList<State> nextStates = new ArrayList<State>();
 
@@ -169,38 +170,40 @@ class State {
 		 * The only interesting next stops are the ones where we either
 		 * pick up a task or deliver one.
 		 */
-		// TODO take weight into account
 
 		/* We go pick up a task */
 		for (Task task : availableTasks) {
 
-			City newCurrentCity = task.pickupCity;
+			if (weightCarried + task.weight < this.vehicle.capacity()) {
 			
-			ArrayList<Task> newAvailableTasks = new ArrayList<Task>(availableTasks);
-			newAvailableTasks.remove(task);
-
-			ArrayList<Task> newCarriedTasks = new ArrayList<Task>(carriedTasks);
-			newCarriedTasks.add(task);
-
-			ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
-
-			// Move can only go to a neighbouring city, so we add a move for all
-			// cities in the path.
-			for (City city : currentCity.pathTo(task.pickupCity)) {
-				newActionList.add(new Move(city));
+				City newCurrentCity = task.pickupCity;
+				
+				ArrayList<Task> newAvailableTasks = new ArrayList<Task>(availableTasks);
+				newAvailableTasks.remove(task);
+	
+				ArrayList<Task> newCarriedTasks = new ArrayList<Task>(carriedTasks);
+				newCarriedTasks.add(task);
+	
+				ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
+	
+				// Move can only go to a neighbouring city, so we add a move for all
+				// cities in the path.
+				for (City city : currentCity.pathTo(task.pickupCity)) {
+					newActionList.add(new Move(city));
+				}
+	
+				newActionList.add(new Pickup(task));
+	
+				double newTotalCost = totalCost + currentCity.distanceTo(newCurrentCity) * vehicle.costPerKm();
+				int newWeightCarried = weightCarried + task.weight;
+	
+				State state = new State(newCurrentCity, newAvailableTasks,
+						newCarriedTasks, newActionList, this.vehicle,
+						newTotalCost, newWeightCarried);
+				nextStates.add(state);
+				
 			}
-
-			newActionList.add(new Pickup(task));
-
-			// TODO needs topology + vehicle (Probably better to do it in BFS/A*
-			// and use a setter) for cost
-			int newTotalCost = totalCost + 0;
-			int newWeightCarried = weightCarried + task.weight;
-
-			State state = new State(newCurrentCity, newAvailableTasks,
-					newCarriedTasks, newActionList, newTotalCost,
-					newWeightCarried);
-			nextStates.add(state);
+			
 		}
 
 		/* We go deliver a task */
@@ -221,13 +224,12 @@ class State {
 
 			newActionList.add(new Delivery(task));
 
-			// TODO needs topology + vehicle for cost
-			int newTotalCost = totalCost + 0;
+			double newTotalCost = totalCost; // We don't really care about cost for the BFS
 			int newWeightCarried = weightCarried - task.weight;
 
 			State state = new State(newCurrentCity, newAvailableTasks,
-					newCarriedTasks, newActionList, newTotalCost,
-					newWeightCarried);
+					newCarriedTasks, newActionList, this.vehicle,
+					newTotalCost, newWeightCarried);
 			nextStates.add(state);
 
 		}
@@ -236,17 +238,18 @@ class State {
 	}
 }
 
-// TODO Implement heuristics
 class StateComparator implements Comparator<State> {
 
 	@Override
-	public int compare(State o1, State o2) {
+	public int compare(State s1, State s2) {
 
-		// TODO Check if > means 1 or -1 (Check Sokoban if doc not clear)
-		if (o1.totalCost > o2.totalCost)
+		/*if (s1.totalCost > s2.totalCost)
 			return 1;
 		else
 			return -1;
+		*/
+		
+		return (s1.totalCost > s2.totalCost) ? 1 : -1;
 	}
 
 }
