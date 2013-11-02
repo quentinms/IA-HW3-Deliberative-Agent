@@ -15,10 +15,18 @@ import logist.topology.Topology.City;
 
 public class Model {
 
-	public static Plan computeBFS(Vehicle vehicle, TaskSet tasks,TaskSet carried) {
+	/**
+	 * Breadth-first search algorithm
+	 * @param vehicle the considered vehicle
+	 * @param available the available tasks of the world
+	 * @param carried the tasks picked up and currently carried by the vehicle
+	 * @return a plan (list of actions)
+	 */
+	public static Plan computeBFS(Vehicle vehicle, TaskSet available, TaskSet carried) {
+		
 		Plan plan = null;
 
-		ArrayList<Task> availableTasks = new ArrayList<Task>(tasks);
+		ArrayList<Task> availableTasks = new ArrayList<Task>(available);
 		ArrayList<Task> carriedTasks = new ArrayList<Task>(carried);
 
 		ArrayDeque<State> Q = new ArrayDeque<State>(); // States we will have to visit
@@ -45,8 +53,10 @@ public class Model {
 					foundFinalState = true;
 				}
 
+				// TODO: shouldn't it be else if? In the algo the previous if ends with a return…
 				if (!C.contains(visitingState)) {
 					C.add(visitingState);
+					//TODO doesn't append(S,Q) mean the next states of visitingState must be at the beginning? 
 					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
@@ -61,14 +71,21 @@ public class Model {
 		return plan;
 	}
 
-	public static Plan computeAStar(Vehicle vehicle, TaskSet tasks, TaskSet carried) {
+	
+	/**
+	 * A* algorithm
+	 * @param vehicle the considered vehicle
+	 * @param available the available tasks of the world
+	 * @param carried the tasks picked up and currently carried by the vehicle
+	 * @return a plan (list of actions)
+	 */
+	public static Plan computeAStar(Vehicle vehicle, TaskSet available, TaskSet carried) {
 		Plan plan = null;
 
-		ArrayList<Task> availableTasks = new ArrayList<Task>(tasks);
+		ArrayList<Task> availableTasks = new ArrayList<Task>(available);
 		ArrayList<Task> carriedTasks = new ArrayList<Task>(carried);
 
 		PriorityQueue<State> Q = new PriorityQueue<State>(1, new StateComparator()); // States we will have to visit
-
 		ArrayList<State> C = new ArrayList<State>(); // States we have already visited, prevent cycles
 
 		City initialCity = vehicle.getCurrentCity();
@@ -92,8 +109,10 @@ public class Model {
 					foundFinalState = true;
 				}
 
-				if (!C.contains(visitingState)) {
+				// TODO: same: shouldn't be else if?
+				if (!C.contains(visitingState)) { // TODO: where is the "or has lower cost than its copy in C?
 					C.add(visitingState);
+					// TODO: With Q being sorted?
 					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
@@ -112,11 +131,11 @@ public class Model {
 
 class State {
 	
+	Vehicle vehicle;
 	City currentCity;
 	ArrayList<Task> availableTasks;
 	ArrayList<Task> carriedTasks;
 	ArrayList<Action> actionList;
-	Vehicle vehicle;
 	// Plan plan;
 
 	double totalCost;
@@ -155,8 +174,8 @@ class State {
 	public boolean equals(Object obj) {
 		State state = (State) obj;
 		return currentCity.equals(state.currentCity)
-				&& carriedTasks.equals(state.carriedTasks)
-				&& availableTasks.equals(state.availableTasks);
+			&& availableTasks.equals(state.availableTasks)
+			&& carriedTasks.equals(state.carriedTasks);
 	}
 
 	public boolean isFinal() {
@@ -237,44 +256,44 @@ class State {
 
 		}*/
 		
-		for (City city: currentCity.neighbors()) {
+		for (City neighbour : currentCity.neighbors()) {
 			
-			City newCurrentCity = city;
+			City newCurrentCity = neighbour;
 
 			ArrayList<Task> newAvailableTasks = new ArrayList<Task>(availableTasks);
 			ArrayList<Task> newCarriedTasks = new ArrayList<Task>(carriedTasks);
 			ArrayList<Action> newActionList = new ArrayList<Action>(actionList);
 
-			newActionList.add(new Move(city));
-			double newTotalCost = totalCost + currentCity.distanceTo(newCurrentCity) * vehicle.costPerKm();;
+			newActionList.add(new Move(neighbour));
+			double newTotalCost = totalCost + currentCity.distanceTo(newCurrentCity) * vehicle.costPerKm();
 			int newWeightCarried = weightCarried;
 			
-			ArrayList<Task> delivered = new ArrayList<Task>();
-			for(Task t: newCarriedTasks){
-				if(t.deliveryCity.equals(city)){
-					newActionList.add(new Delivery(t));
-					newWeightCarried = newWeightCarried - t.weight;
-					delivered.add(t);
+			ArrayList<Task> deliveredTasks = new ArrayList<Task>();
+			for (Task task : newCarriedTasks) {
+				if (task.deliveryCity.equals(neighbour)) {
+					newActionList.add(new Delivery(task));
+					newWeightCarried = newWeightCarried - task.weight;
+					deliveredTasks.add(task);
 				}
 			}
 			
-			newCarriedTasks.removeAll(delivered);
+			newCarriedTasks.removeAll(deliveredTasks);
 			
-			//TODO Weight
+			//TODO: Done: weight (in the if) (please verify)
 			
-			ArrayList<Task> pickedUp = new ArrayList<Task>();
-			for(Task task: newAvailableTasks){
-				if(task.pickupCity.equals(city)){
+			ArrayList<Task> pickedUpTasks = new ArrayList<Task>();
+			for (Task task : newAvailableTasks) {
+				if (task.pickupCity.equals(neighbour) && vehicle.capacity() <= newWeightCarried + task.weight) {
 					newActionList.add(new Pickup(task));
 					newWeightCarried = newWeightCarried + task.weight;
-					pickedUp.add(task);
+					pickedUpTasks.add(task);
 				}
 			}
 			
-			newAvailableTasks.removeAll(pickedUp);
-			newCarriedTasks.addAll(pickedUp);
+			newAvailableTasks.removeAll(pickedUpTasks);
+			newCarriedTasks.addAll(pickedUpTasks);
 
-	
+			
 			State state = new State(newCurrentCity, newAvailableTasks,
 					newCarriedTasks, newActionList, this.vehicle,
 					newTotalCost, newWeightCarried);
@@ -300,19 +319,19 @@ class StateComparator implements Comparator<State> {
 		
 		double futureCostS1 = 0;
 		City c1 = s1.currentCity;
-		for (Task t: s1.availableTasks){
+		for (Task task : s1.availableTasks) {
 			
 		}
 		
 		double futureCostS2 = 0;
 		City c2 = s2.currentCity;
-		for (Task t: s2.availableTasks){
+		for (Task task : s2.availableTasks) {
 			
 		}
 		
 		
 		
-		return (s1.totalCost + futureCostS1> s2.totalCost + futureCostS2) ? 1 : -1;
+		return s1.totalCost + futureCostS1 > s2.totalCost + futureCostS2 ? 1 : -1;
 	}
 
 }
