@@ -53,10 +53,8 @@ public class Model {
 					foundFinalState = true;
 				}
 
-				// TODO: shouldn't it be else if? In the algo the previous if ends with a return���
 				else if (!C.contains(visitingState)) {
 					C.add(visitingState);
-					//TODO doesn't append(S,Q) mean the next states of visitingState must be at the beginning? 
 					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
@@ -109,10 +107,9 @@ public class Model {
 					foundFinalState = true;
 				}
 
-				// TODO: same: shouldn't be else if?
-				else if (!C.contains(visitingState) || (C.contains(visitingState) && C.get(C.indexOf(visitingState)).totalCost > visitingState.totalCost)) { // TODO: where is the "or has lower cost than its copy in C?
+				else if (!C.contains(visitingState)
+					  || (C.contains(visitingState) && C.get(C.indexOf(visitingState)).totalCost > visitingState.totalCost)) {
 					C.add(visitingState);
-					// TODO: With Q being sorted?
 					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
 
@@ -136,7 +133,6 @@ class State {
 	ArrayList<Task> availableTasks;
 	ArrayList<Task> carriedTasks;
 	ArrayList<Action> actionList;
-	// Plan plan;
 
 	double totalCost;
 	int weightCarried;
@@ -280,8 +276,6 @@ class State {
 			
 			newCarriedTasks.removeAll(deliveredTasks);
 			
-			//TODO: Done: weight (in the if) (please verify)
-			
 			ArrayList<Task> pickedUpTasks = new ArrayList<Task>();
 			for (Task task : newAvailableTasks) {
 				if (task.pickupCity.equals(neighbour) && vehicle.capacity() >= newWeightCarried + task.weight) {
@@ -308,37 +302,28 @@ class State {
 }
 
 class StateComparator implements Comparator<State> {
-	//TODO Heuristic
+	
 	@Override
 	public int compare(State s1, State s2) {
-
-		/*if (s1.totalCost > s2.totalCost)
-			return 1;
-		else
-			return -1;
-		*/
 		
 		double futureCostS1 = 0;
-		City c1 = s1.currentCity;
 		for (Task task : s1.availableTasks) {
-			double taskCost = s1.currentCity.distanceTo(task.pickupCity)* s1.vehicle.costPerKm();
-			if(taskCost > futureCostS1 ){
+			double taskCost = s1.currentCity.distanceTo(task.pickupCity) * s1.vehicle.costPerKm();
+			if (taskCost > futureCostS1) {
 				futureCostS1 = taskCost;
 			}
 		}
 		
 		double futureCostS2 = 0;
-		City c2 = s2.currentCity;
 		for (Task task : s2.availableTasks) {
-			double taskCost = s2.currentCity.distanceTo(task.pickupCity)* s2.vehicle.costPerKm();
-			if(taskCost > futureCostS2 ){
+			double taskCost = s2.currentCity.distanceTo(task.pickupCity) * s2.vehicle.costPerKm();
+			if (taskCost > futureCostS2 ) {
 				futureCostS2 = taskCost;
 			}
 		}
 		
-		
-		
 		return s1.totalCost + futureCostS1 > s2.totalCost + futureCostS2 ? 1 : -1;
+		
 	}
 
 }
