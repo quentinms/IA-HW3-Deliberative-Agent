@@ -1,3 +1,5 @@
+import java.util.Date;
+
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
@@ -47,6 +49,7 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 	@Override
 	public Plan plan(Vehicle vehicle, TaskSet tasks) {
 		Plan plan;
+		Date start = new Date();
 
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
@@ -54,12 +57,14 @@ public class DeliberativeAgent implements DeliberativeBehavior {
 		case ASTAR:
 			System.out.println("Plan: A*");
 			plan = aStarPlan(vehicle, tasks, carriedTasks);
+			System.out.println(((new Date()).getTime() - start.getTime())/1000 + "s");
 			System.out.println("The plan's cost is: " + plan.totalDistance() * vehicle.costPerKm());
 			break;
 			
 		case BFS:
 			System.out.println("Plan: BFS");
 			plan = bfsPlan(vehicle, tasks, carriedTasks);
+			System.out.println(((new Date()).getTime() - start.getTime())/1000 + "s");
 			System.out.println("The plan's cost is: " + plan.totalDistance() * vehicle.costPerKm());
 			break;
 			
