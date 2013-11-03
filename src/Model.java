@@ -185,25 +185,25 @@ class State {
 	}
 	
 	public ArrayList<State> next() {
+		
 		ArrayList<State> nextStates = new ArrayList<State>();
 
 		/*
 		 * The only interesting next stops are the ones where we either
 		 * pick up or deliver tasks.
 		 */
-
 		
 		ArrayList<City> interestingCities = new ArrayList<City>();
 		
-		for(Task t : carriedTasks){
-			if(!interestingCities.contains(t.deliveryCity)){
-				interestingCities.add(t.deliveryCity);
+		for (Task carriedtask : carriedTasks) {
+			if(!interestingCities.contains(carriedtask.deliveryCity)) {
+				interestingCities.add(carriedtask.deliveryCity);
 			}
 		}
 		
-		for(Task t : availableTasks){
-			if(!interestingCities.contains(t.pickupCity)){
-				interestingCities.add(t.pickupCity);
+		for (Task availabletask : availableTasks) {
+			if(!interestingCities.contains(availabletask.pickupCity)) {
+				interestingCities.add(availabletask.pickupCity);
 			}
 		}
 		
@@ -257,6 +257,7 @@ class State {
 		}
 
 		return nextStates;
+		
 	}
 }
 
@@ -264,9 +265,7 @@ class StateComparator implements Comparator<State> {
 	
 	@Override
 	public int compare(State s1, State s2) {
-		
 		return s1.heuristicValue > s2.heuristicValue ? 1 : -1;
-		
 	}
 
 }
