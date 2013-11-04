@@ -108,7 +108,7 @@ public class Model {
 				}
 
 				else if (!C.contains(visitingState)
-					  || (C.contains(visitingState) && C.get(C.indexOf(visitingState)).totalCost > visitingState.totalCost)) {
+					  || (C.contains(visitingState) && C.get(C.indexOf(visitingState)).heuristicValue > visitingState.heuristicValue)) {
 					C.add(visitingState);
 					Q.addAll(visitingState.next()); // Hopefully at the end of the list
 				}
@@ -155,7 +155,7 @@ class State {
 		
 		double futureCost = 0;
 		for (Task task : availableTasks) {
-			double taskCost = currentCity.distanceTo(task.pickupCity) * vehicle.costPerKm();
+			double taskCost = (currentCity.distanceTo(task.pickupCity) + task.pickupCity.distanceTo(task.deliveryCity)) * vehicle.costPerKm();
 			if (taskCost > futureCost) {
 				futureCost = taskCost;
 			}
